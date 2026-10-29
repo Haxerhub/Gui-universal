@@ -1,0 +1,175 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+local Mouse = Player:GetMouse()
+
+local CONFIG = {
+    DiscordLink = "https://discord.gg/BukbGDTSm",
+    LoadDelay = 5,
+    Theme = {
+        Background = Color3.fromRGB(10, 5, 5),
+        Accent = Color3.fromRGB(200, 20, 20), -- Rojo Sangre
+        Success = Color3.fromRGB(40, 180, 40),
+        Danger = Color3.fromRGB(160, 25, 25),
+        Secondary = Color3.fromRGB(25, 12, 12),
+        InputBg = Color3.fromRGB(15, 8, 8),
+        Text = Color3.fromRGB(245, 245, 245)
+    }
+}
+
+-- Función robusta para copiar el enlace al portapapeles en cualquier exploit
+local function CopyToClipboard(text)
+    pcall(function()
+        if setclipboard then
+            setclipboard(text)
+        elseif toclipboard then
+            toclipboard(text)
+        elseif syn and syn.write_clipboard then
+            syn.write_clipboard(text)
+        end
+    end)
+end
+
+-- Sonido estético al hacer clic en los botones
+local function PlayClickSound()
+    pcall(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://6895079853"
+        sound.Volume = 0.4
+        sound.Parent = workspace
+        sound:Play()
+        sound.Ended:Connect(function() sound:Destroy() end)
+    end)
+end
+
+-- ==========================================
+-- ANTI-AFK (Evita desconexiones)
+-- ==========================================
+pcall(function()
+    local VirtualUser = game:GetService("VirtualUser")
+    Player.Idled:Connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+end)
+
+-- ==========================================
+-- PANTALLA DE CARGA (ABYSSCRIPT THEME)
+-- ==========================================
+local LoadGui = Instance.new("ScreenGui")
+LoadGui.Name = "AbyssLoadGui"
+LoadGui.Parent = PlayerGui
+LoadGui.ResetOnSpawn = false
+
+local LoadFrame = Instance.new("Frame", LoadGui)
+LoadFrame.BackgroundColor3 = CONFIG.Theme.Background
+LoadFrame.Position = UDim2.new(0.5, -140, 0.5, -90)
+LoadFrame.Size = UDim2.new(0, 280, 0, 180)
+LoadFrame.Active = true
+Instance.new("UICorner", LoadFrame).CornerRadius = UDim.new(0, 12)
+
+local LoadStroke = Instance.new("UIStroke", LoadFrame)
+LoadStroke.Color = CONFIG.Theme.Accent
+LoadStroke.Thickness = 2.5
+
+local LoadTitle = Instance.new("TextLabel", LoadFrame)
+LoadTitle.BackgroundTransparency = 1
+LoadTitle.Position = UDim2.new(0, 0, 0.1, 0)
+LoadTitle.Size = UDim2.new(1, 0, 0, 30)
+LoadTitle.Text = "ABYSSCRIPT"
+LoadTitle.TextColor3 = CONFIG.Theme.Accent
+LoadTitle.TextSize = 22
+LoadTitle.Font = Enum.Font.SourceSansBold
+
+local LoadSub = Instance.new("TextLabel", LoadFrame)
+LoadSub.BackgroundTransparency = 1
+LoadSub.Position = UDim2.new(0, 0, 0.3, 0)
+LoadSub.Size = UDim2.new(1, 0, 0, 20)
+LoadSub.Text = "<font color='rgb(180,50,50)'>by fxzle</font>"
+LoadSub.RichText = true
+LoadSub.TextColor3 = CONFIG.Theme.Text
+LoadSub.TextSize = 14
+LoadSub.Font = Enum.Font.SourceSansBold
+
+local LoadStatus = Instance.new("TextLabel", LoadFrame)
+LoadStatus.BackgroundTransparency = 1
+LoadStatus.Position = UDim2.new(0, 0, 0.52, 0)
+LoadStatus.Size = UDim2.new(1, 0, 0, 20)
+LoadStatus.Text = "Cargando interfaz perfecta..."
+LoadStatus.TextColor3 = Color3.fromRGB(180, 100, 100)
+LoadStatus.TextSize = 13
+LoadStatus.Font = Enum.Font.SourceSans
+
+local BarBg = Instance.new("Frame", LoadFrame)
+BarBg.BackgroundColor3 = CONFIG.Theme.Secondary
+BarBg.Position = UDim2.new(0.1, 0, 0.75, 0)
+BarBg.Size = UDim2.new(0.8, 0, 0, 8)
+Instance.new("UICorner", BarBg).CornerRadius = UDim.new(1, 0)
+
+local BarFill = Instance.new("Frame", BarBg)
+BarFill.BackgroundColor3 = CONFIG.Theme.Accent
+BarFill.Size = UDim2.new(0, 0, 1, 0)
+Instance.new("UICorner", BarFill).CornerRadius = UDim.new(1, 0)
+
+TweenService:Create(BarFill, TweenInfo.new(CONFIG.LoadDelay, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0)}):Play()
+
+-- ==========================================
+-- MENÚ PRINCIPAL GUI
+-- ==========================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FxzleMenuGui"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = false
+
+local ToggleBtn = Instance.new("TextButton", ScreenGui)
+ToggleBtn.Name = "ToggleMenu"
+ToggleBtn.BackgroundColor3 = CONFIG.Theme.Accent
+ToggleBtn.Position = UDim2.new(0.05, 0, 0.35, 0)
+ToggleBtn.Size = UDim2.new(0, 45, 0, 45)
+ToggleBtn.Text = "-"
+ToggleBtn.TextColor3 = CONFIG.Theme.Text
+ToggleBtn.TextSize = 22
+ToggleBtn.Font = Enum.Font.SourceSansBold
+ToggleBtn.Active = true
+ToggleBtn.Draggable = true
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 8)
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Name = "MainFrame"
+MainFrame.BackgroundColor3 = CONFIG.Theme.Background
+MainFrame.Position = UDim2.new(0.05, 0, 0.43, 0)
+MainFrame.Size = UDim2.new(0, 230, 0, 520)
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+
+local UIStroke = Instance.new("UIStroke", MainFrame)
+UIStroke.Color = CONFIG.Theme.Accent
+UIStroke.Thickness = 2
+
+local Title = Instance.new("TextLabel", MainFrame)
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "ABYSSCRIPT\n<font size='10' color='rgb(180,50,50)'>by fxzle • Perfect GUI</font>"
+Title.RichText = true
+Title.TextColor3 = CONFIG.Theme.Text
+Title.TextSize = 14
+Title.Font = Enum.Font.SourceSansBold
+
+local ScrollFrame = Instance.new("ScrollingFrame", MainFrame)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.Position = UDim2.new(0.05, 0, 0.08, 0)
+ScrollFrame.Size = UDim2.new(0.9, 0, 0.81, 0)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 640)
+ScrollFrame.ScrollBarThickness = 4
+ScrollFrame.ScrollBarImageColor3 = CONFIG.Theme.Accent
+
+local UIListLayout = Instance.new("UIListLayout", ScrollFrame)
+UIListLayout.Sort
